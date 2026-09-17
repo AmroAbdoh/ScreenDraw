@@ -27,7 +27,7 @@ except Exception as error:
     PYNPUT_IMPORT_ERROR = str(error)
 
 
-class ScreenAnnotator(
+class DesktopDraw(
     AnnotatorUIMixin,
     AnnotatorInputMixin,
     AnnotatorDrawingMixin,
@@ -130,4 +130,4 @@ class ScreenAnnotator(
 
 
 if __name__ == "__main__":
-    ScreenAnnotator().run()
+    DesktopDraw().run()

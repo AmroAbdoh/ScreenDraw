@@ -6,7 +6,7 @@ import os
 
 def _settings_path():
     base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
-    folder = os.path.join(base, "ScreenAnnotator")
+    folder = os.path.join(base, "DesktopDraw")
     os.makedirs(folder, exist_ok=True)
     return os.path.join(folder, "settings.json")
 

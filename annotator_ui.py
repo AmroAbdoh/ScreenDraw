@@ -97,7 +97,7 @@ class AnnotatorUIMixin:
 
         self.overlay.bind("<Control-z>", lambda e: self.undo())
         self.overlay.bind("<Control-y>", lambda e: self.redo())
-        self.overlay.bind("<Escape>", lambda e: self.exit_app())
+        self.overlay.bind("<Escape>", lambda e: self.hide_app())
 
     def _build_toolbar(self):
         self.toolbar = tk.Toplevel(self.root)

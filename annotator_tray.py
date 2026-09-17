@@ -27,7 +27,7 @@ class AnnotatorTrayMixin:
             pystray.MenuItem("Show", lambda icon, item: self.root.after(0, self.show_app)),
             pystray.MenuItem("Exit", lambda icon, item: self.root.after(0, self.exit_app)),
         )
-        self.tray_icon = pystray.Icon("ScreenAnnotator", image, "screen draw", menu)
+        self.tray_icon = pystray.Icon("DesktopDraw", image, "screen draw", menu)
         self.tray_thread = threading.Thread(target=self.tray_icon.run, daemon=True)
         self.tray_thread.start()
 

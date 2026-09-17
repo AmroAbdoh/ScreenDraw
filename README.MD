@@ -49,10 +49,10 @@ bundled in:
 
 ```
 pip install pyinstaller
-pyinstaller ScreenAnnotator.spec
+pyinstaller DesktopDraw.spec
 ```
 
-The finished executable will be at `dist\ScreenAnnotator.exe`.
+The finished executable will be at `dist\DesktopDraw.exe`.
 
 ## Project structure
 
@@ -65,7 +65,7 @@ annotator_config.py       # app configuration / defaults
 annotator_settings.py     # saving and loading user preferences
 annotator_tray.py         # system tray integration
 icons/                    # toolbar icon assets
-ScreenAnnotator.spec      # PyInstaller build configuration
+DesktopDraw.spec      # PyInstaller build configuration
 ```
 
 ## Notes

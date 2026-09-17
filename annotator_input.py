@@ -68,6 +68,9 @@ class AnnotatorInputMixin:
                     self.mouse_listener.suppress_event()
 
         def win32_keyboard_filter(msg, data):
+            if msg in (0x0100, 0x0104) and data.vkCode == 0x1B:
+                self.root.after(0, self.hide_app)
+                return
             if msg in (0x0100, 0x0101, 0x0104, 0x0105) and self.tool != "pointer":
                 self.keyboard_listener.suppress_event()
 

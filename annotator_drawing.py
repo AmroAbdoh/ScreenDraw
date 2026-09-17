@@ -226,7 +226,13 @@ class AnnotatorDrawingMixin:
                 })
 
         entry.bind("<Return>", finish)
-        entry.bind("<Escape>", lambda e: entry.destroy())
+
+        def cancel(event=None):
+            entry.destroy()
+            self.hide_app()
+            return "break"
+
+        entry.bind("<Escape>", cancel)
 
     def select_at(self, x, y):
         self._delete_selection_visuals()

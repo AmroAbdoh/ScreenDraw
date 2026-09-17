@@ -27,3 +27,6 @@ desktop.ini
 # it here so your personal color/size preferences don't get committed.
 # Update this filename to match whatever it actually writes.
 settings.json
+
+
+*.zip

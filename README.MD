@@ -1,4 +1,4 @@
-# Screen Annotator
+# screen draw
 
 A lightweight Windows desktop app for drawing directly on top of your screen —
 draw, highlight, and mark up anything on your desktop, in any app, without
@@ -6,7 +6,7 @@ switching windows.
 
 ## Screenshot
 
-![Screen Annotator toolbar](screenshots/toolbar.png)
+![screen draw toolbar](screenshots/toolbar.png)
 
 ## Features
 

@@ -1,5 +1,6 @@
 """Drawing tools, selection, history, and image export."""
 
+import math
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -117,10 +118,95 @@ class AnnotatorDrawingMixin:
                  and "resize_handle" not in self.canvas.gettags(candidate)),
                 None,
             )
-        if item is not None:
+        if item is None:
+            return
+
+        # Lines (pencil, highlighter, straight-line tool) are point paths,
+        # so we can cut out just the piece under the eraser and keep the
+        # rest as separate strokes. Shapes without a point path (ovals,
+        # rectangles, text) still erase as a whole item.
+        if self.canvas.type(item) == "line":
+            self._erase_line_segment(item, x, y, radius)
+        else:
             snapshot = self._snapshot(item)
             self.canvas.delete(item)
             self._push_history({"kind": "existence", "item": None, "snapshot": snapshot})
+
+    def _erase_line_segment(self, item, cx, cy, radius):
+        """Remove only the part of a line stroke inside the eraser circle,
+        splitting whatever remains into separate strokes."""
+        coords = self.canvas.coords(item)
+        points = list(zip(coords[0::2], coords[1::2]))
+        if len(points) < 2:
+            snapshot = self._snapshot(item)
+            self.canvas.delete(item)
+            self._push_history({"kind": "existence", "item": None, "snapshot": snapshot})
+            return
+
+        # Add extra points along each segment so long straight stretches
+        # (e.g. the "line" tool, which only has 2 points) can be cut in
+        # the middle instead of only at their endpoints.
+        dense = self._densify_points(points, max(3, radius / 4))
+
+        r2 = radius * radius
+        kept_runs = []
+        current = []
+        for px, py in dense:
+            if (px - cx) ** 2 + (py - cy) ** 2 > r2:
+                current.append((px, py))
+            else:
+                if len(current) >= 2:
+                    kept_runs.append(current)
+                current = []
+        if len(current) >= 2:
+            kept_runs.append(current)
+
+        if not kept_runs:
+            # Eraser covers the whole stroke.
+            snapshot = self._snapshot(item)
+            self.canvas.delete(item)
+            self._push_history({"kind": "existence", "item": None, "snapshot": snapshot})
+            return
+
+        if len(kept_runs) == 1 and len(kept_runs[0]) == len(dense):
+            # Eraser didn't actually remove anything from this stroke.
+            return
+
+        old_snapshot = self._snapshot(item)
+        style = old_snapshot["cfg"]
+        self.canvas.delete(item)
+
+        new_items = []
+        new_snapshots = []
+        for run in kept_runs:
+            flat = [coord for point in run for coord in point]
+            new_item = self._recreate({"type": "line", "coords": flat, "cfg": style})
+            new_items.append(new_item)
+            new_snapshots.append(self._snapshot(new_item))
+
+        self._push_history({
+            "kind": "erase_segment",
+            "removed": {"item": None, "snapshot": old_snapshot},
+            "created": {"items": new_items, "snapshots": new_snapshots},
+        })
+
+    @staticmethod
+    def _densify_points(points, max_len):
+        """Insert interpolated points so no gap between consecutive points
+        exceeds max_len, without dropping any original point."""
+        if len(points) < 2:
+            return list(points)
+        result = [points[0]]
+        for i in range(1, len(points)):
+            x0, y0 = points[i - 1]
+            x1, y1 = points[i]
+            dist = math.hypot(x1 - x0, y1 - y0)
+            steps = max(1, int(dist // max_len))
+            for s in range(1, steps):
+                t = s / steps
+                result.append((x0 + (x1 - x0) * t, y0 + (y1 - y0) * t))
+            result.append((x1, y1))
+        return result
 
     def add_text(self, x, y):
         entry = tk.Entry(self.overlay, font=("Arial", max(10, self.size * 3)))
@@ -338,6 +424,14 @@ class AnnotatorDrawingMixin:
             self.canvas.coords(action["item"], *action["from"])
         elif action["kind"] == "clear":
             action["items"] = [self._recreate(s) for s in action["snapshots"]]
+        elif action["kind"] == "erase_segment":
+            removed = action["removed"]
+            created = action["created"]
+            if removed["item"] is None:
+                removed["item"] = self._recreate(removed["snapshot"])
+            for created_item in created["items"]:
+                self.canvas.delete(created_item)
+            created["items"] = []
         self.redo_stack.append(action)
 
     def redo(self):
@@ -352,6 +446,13 @@ class AnnotatorDrawingMixin:
             for item in action["items"]:
                 self.canvas.delete(item)
             action["items"] = []
+        elif action["kind"] == "erase_segment":
+            removed = action["removed"]
+            created = action["created"]
+            if removed["item"] is not None:
+                self.canvas.delete(removed["item"])
+                removed["item"] = None
+            created["items"] = [self._recreate(s) for s in created["snapshots"]]
         self.history.append(action)
 
     def clear_all(self):

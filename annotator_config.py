@@ -1,4 +1,4 @@
-"""Shared configuration for the screen annotator."""
+"""Shared configuration for the screen draw."""
 
 TOOLS_GRID = [
     ("Pen", "pencil", "Pencil"),

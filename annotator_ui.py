@@ -1,4 +1,4 @@
-"""Tkinter overlay and toolbar UI for the screen annotator."""
+"""Tkinter overlay and toolbar UI for the screen draw."""
 
 import os
 import sys
@@ -118,17 +118,11 @@ class AnnotatorUIMixin:
         handle.bind("<ButtonPress-1>", self._start_move_toolbar)
         handle.bind("<B1-Motion>", self._do_move_toolbar)
 
-        mode_text = "Full transparency" if self.HAVE_PYNPUT else "Fallback mode"
-        mode_color = "#3ad46b" if self.HAVE_PYNPUT else "#e0a030"
         self.color_btn = tk.Button(
             frame, bg=self.color, activebackground=self.color,
             width=3, height=1, relief="flat", bd=1, command=self.choose_color,
         )
         self.color_btn.grid(row=0, column=1, sticky="e", padx=(8, 0), pady=(0, 4))
-
-        tk.Label(
-            frame, text=mode_text, bg="#1e1e1e", fg=mode_color, font=("Segoe UI", 7)
-        ).grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 3))
 
         btn_font = ("Segoe UI", 9, "bold")
         BTN_W, BTN_H = 100, 48  # fixed pixel size for every tool button

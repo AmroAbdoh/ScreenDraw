@@ -1,4 +1,4 @@
-"""Persistent user settings for the screen annotator."""
+"""Persistent user settings for the screen draw."""
 
 import json
 import os

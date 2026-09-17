@@ -5,7 +5,7 @@ a = Analysis(
     ['screen_annotator.py'],
     pathex=[],
     binaries=[],
-    datas=[('icons', 'icons')],
+    datas=[('icons', 'icons'), ('ScreenDraw.ico', '.'), ('ScreenDraw.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='ScreenDraw.ico',
 )
